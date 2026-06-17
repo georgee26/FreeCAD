@@ -10977,8 +10977,8 @@ CmdSketcherConstrainGroup::CmdSketcherConstrainGroup()
     sMenuText = QT_TR_NOOP("Group Constraint");
     sToolTipText = QT_TR_NOOP("Constrains the selected geometries together as a single entity. "
         "The position and size of the grouped geometries can be defined by constraining the construction line that is generated. "
-        "The line runs through the center of the group, so the group can be centered horizontally, vertically or both "
-        "by constraining the line to the sketch axes or its endpoints symmetrically about the origin. "
+        "The line runs along the longest side of the group through its center, so the group can be centered "
+        "horizontally, vertically or both by constraining the line's endpoints symmetrically about the sketch axes or the origin. "
         "Constraints applied to grouped edges are ignored as long as the Group constraint is here.");
     sWhatsThis = "Sketcher_ConstrainGroup";
     sStatusTip = sToolTipText;
@@ -11145,14 +11145,23 @@ bool SketcherGui::addListConstraint(Sketcher::SketchObject* Obj,
         gp_Pnt max_pnt = totalBBox.CornerMax();
 
         // --- 2. Define and create the Construction Line "Frame" ---
-        // The frame is a vertical line through the center of the bounding box, so that
-        // the group can be centered by pure translations: horizontally by making the
-        // line collinear with the vertical axis, vertically by making its endpoints
-        // symmetric about the horizontal axis, and both by making its endpoints
-        // symmetric about the origin (the line's midpoint is the center of the group).
+        // The frame runs through the center of the bounding box along its longest side, so its
+        // length matches the group's dominant dimension and its midpoint is the group center.
+        // Keeping it axis-aligned lets the orientation be locked with a Horizontal/Vertical
+        // constraint and the group be centered with pure translations (endpoints symmetric about
+        // an axis or the origin).
         double midX = (min_pnt.X() + max_pnt.X()) / 2;
-        frame_p1 = Base::Vector2d(midX, min_pnt.Y());
-        frame_p2 = Base::Vector2d(midX, max_pnt.Y());
+        double midY = (min_pnt.Y() + max_pnt.Y()) / 2;
+        if (max_pnt.X() - min_pnt.X() >= max_pnt.Y() - min_pnt.Y()) {
+            // wider than tall: horizontal line spanning the full width
+            frame_p1 = Base::Vector2d(min_pnt.X(), midY);
+            frame_p2 = Base::Vector2d(max_pnt.X(), midY);
+        }
+        else {
+            // taller than wide: vertical line spanning the full height
+            frame_p1 = Base::Vector2d(midX, min_pnt.Y());
+            frame_p2 = Base::Vector2d(midX, max_pnt.Y());
+        }
     }
 
     Gui::cmdAppObjectArgs(Obj,
