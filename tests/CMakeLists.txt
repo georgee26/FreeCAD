@@ -50,7 +50,6 @@ endfunction()
 set(TestExecutables
     App_tests_run
     Base_tests_run
-    Misc_tests_run
     Zipios_tests_run
 )
 
@@ -63,6 +62,9 @@ endif()
 if(BUILD_ASSEMBLY)
     list (APPEND TestExecutables Assembly_tests_run)
 endif(BUILD_ASSEMBLY)
+if(BUILD_CAM)
+    list (APPEND TestExecutables CAM_tests_run)
+endif(BUILD_CAM)
 if(BUILD_MATERIAL)
     list (APPEND TestExecutables Material_tests_run)
 endif(BUILD_MATERIAL)

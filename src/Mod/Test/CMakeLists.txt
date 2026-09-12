@@ -1,8 +1,12 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+# SPDX-FileCopyrightText: 2026 Joao Matos
+# SPDX-FileNotice: Part of the FreeCAD project.
 
 SET(Test_SRCS
     __init__.py
     Init.py
     BaseTests.py
+    FreeCADInitTests.py
     AutoSaverStress.py
     RunAutoSaverStress.py
     Document.py
@@ -10,7 +14,11 @@ SET(Test_SRCS
     Metadata.py
     StringHasher.py
     Menu.py
+    Recompute.py
+    GuiRecompute.py
     TestApp.py
+    TestLinkSuppression.py
+    TestIntPairList.py
     TestGui.py
     UnicodeTests.py
     UnitTests.py
@@ -20,9 +28,14 @@ SET(Test_SRCS
     TestPythonSyntax.py
     TestPerf.py
     TestTreeSelection.py
+    TestGraphicsViewWrapping.py
+    TestMDIView.py
     TestRubberbandSelection.py
     TestCoinNodeSnapshots.py
-    TestCoinSelectionVisual.py
+    TestView3DFramebufferCapture.py
+    TestSelectionVisual.py
+    TestCornerAxisCrossVisual.py
+    TestViewProviderLink.py
 )
 
 SET(TestData_SRCS
@@ -50,6 +63,10 @@ foreach(test_data_src ${TestData_SRCS})
 endforeach()
 
 add_custom_target(TestSources DEPENDS ${Test_COPY_OUTPUTS})
+
+if(BUILD_MATERIAL AND TARGET MaterialLib)
+    add_dependencies(TestSources MaterialLib)
+endif()
 
 ADD_CUSTOM_TARGET(Test ALL
     DEPENDS TestSources
